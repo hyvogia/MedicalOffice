@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MedicalOffice.Data.MOMigrations
 {
     [DbContext(typeof(MedicalOfficeContext))]
-    [Migration("20251225193931_Initial")]
+    [Migration("20251225230448_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -54,6 +54,24 @@ namespace MedicalOffice.Data.MOMigrations
                     b.ToTable("Doctors", "MO");
                 });
 
+            modelBuilder.Entity("MedicalOffice.Models.MedicalTrial", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("TrialName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("MedicalTrials", "MO");
+                });
+
             modelBuilder.Entity("MedicalOffice.Models.Patient", b =>
                 {
                     b.Property<int>("ID")
@@ -86,6 +104,9 @@ namespace MedicalOffice.Data.MOMigrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int?>("MedicalTrialID")
+                        .HasColumnType("int");
+
                     b.Property<string>("MiddleName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -105,6 +126,8 @@ namespace MedicalOffice.Data.MOMigrations
 
                     b.HasIndex("DoctorID");
 
+                    b.HasIndex("MedicalTrialID");
+
                     b.HasIndex("OHIP")
                         .IsUnique();
 
@@ -119,10 +142,21 @@ namespace MedicalOffice.Data.MOMigrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("MedicalOffice.Models.MedicalTrial", "MedicalTrial")
+                        .WithMany("Patients")
+                        .HasForeignKey("MedicalTrialID");
+
                     b.Navigation("Doctor");
+
+                    b.Navigation("MedicalTrial");
                 });
 
             modelBuilder.Entity("MedicalOffice.Models.Doctor", b =>
+                {
+                    b.Navigation("Patients");
+                });
+
+            modelBuilder.Entity("MedicalOffice.Models.MedicalTrial", b =>
                 {
                     b.Navigation("Patients");
                 });

@@ -14,6 +14,8 @@ namespace MedicalOffice.Data
 
         public DbSet<Patient> Patients { get; set; }
 
+        public DbSet<MedicalTrial> MedicalTrials { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("MO");

@@ -37,6 +37,22 @@ namespace MedicalOffice.Data
                     );
                     context.SaveChanges();
                 }
+                //Add some Medical Trials
+                if (!context.MedicalTrials.Any())
+                {
+                    context.MedicalTrials.AddRange(
+                     new MedicalTrial
+                     {
+                         TrialName = "UOT - Lukemia Treatment"
+                     }, new MedicalTrial
+                     {
+                         TrialName = "HyGIeaCare Center -  Microbiome Analysis of Constipated Versus Non-constipation Patients"
+                     }, new MedicalTrial
+                     {
+                         TrialName = "TUK - Hair Loss Treatment"
+                     });
+                    context.SaveChanges();
+                }
                 if (!context.Patients.Any())
                 {
                     context.Patients.AddRange(
@@ -74,7 +90,9 @@ namespace MedicalOffice.Data
                         ExpYrVisits = 2,
                         Phone = "9055551213",
                         EMail = "brubble@outlook.com",
-                        DoctorID = context.Doctors.FirstOrDefault(d => d.FirstName == "Doogie" && d.LastName == "Houser").ID
+                        DoctorID = context.Doctors.FirstOrDefault(d => d.FirstName == "Doogie" && d.LastName == "Houser").ID,
+                        MedicalTrialID = context.MedicalTrials.FirstOrDefault(d => d.TrialName.Contains("UOT")).ID
+
                     },
                     new Patient
                     {
@@ -85,11 +103,14 @@ namespace MedicalOffice.Data
                         ExpYrVisits = 2,
                         Phone = "9055551234",
                         EMail = "jdoe@outlook.com",
-                        DoctorID = context.Doctors.FirstOrDefault(d => d.FirstName == "Charles" && d.LastName == "Xavier").ID
+                        DoctorID = context.Doctors.FirstOrDefault(d => d.FirstName == "Charles" && d.LastName == "Xavier").ID,
+                        MedicalTrialID = context.MedicalTrials.FirstOrDefault(d => d.TrialName.Contains("TUK")).ID
+
                     }
                     );
                     context.SaveChanges();
                 }
+
             }
         }
     }

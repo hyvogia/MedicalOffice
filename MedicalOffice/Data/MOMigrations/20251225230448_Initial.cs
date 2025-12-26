@@ -31,6 +31,20 @@ namespace MedicalOffice.Data.MOMigrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "MedicalTrials",
+                schema: "MO",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TrialName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MedicalTrials", x => x.ID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Patients",
                 schema: "MO",
                 columns: table => new
@@ -45,7 +59,8 @@ namespace MedicalOffice.Data.MOMigrations
                     ExpYrVisits = table.Column<byte>(type: "tinyint", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     EMail = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    DoctorID = table.Column<int>(type: "int", nullable: false)
+                    DoctorID = table.Column<int>(type: "int", nullable: false),
+                    MedicalTrialID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -57,6 +72,12 @@ namespace MedicalOffice.Data.MOMigrations
                         principalTable: "Doctors",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Patients_MedicalTrials_MedicalTrialID",
+                        column: x => x.MedicalTrialID,
+                        principalSchema: "MO",
+                        principalTable: "MedicalTrials",
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateIndex(
@@ -64,6 +85,12 @@ namespace MedicalOffice.Data.MOMigrations
                 schema: "MO",
                 table: "Patients",
                 column: "DoctorID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Patients_MedicalTrialID",
+                schema: "MO",
+                table: "Patients",
+                column: "MedicalTrialID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Patients_OHIP",
@@ -82,6 +109,10 @@ namespace MedicalOffice.Data.MOMigrations
 
             migrationBuilder.DropTable(
                 name: "Doctors",
+                schema: "MO");
+
+            migrationBuilder.DropTable(
+                name: "MedicalTrials",
                 schema: "MO");
         }
     }

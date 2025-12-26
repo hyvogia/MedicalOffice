@@ -22,7 +22,9 @@ namespace MedicalOffice.Controllers
         // GET: Patients
         public async Task<IActionResult> Index()
         {
-            var medicalOfficeContext = _context.Patients.Include(p => p.Doctor);
+            var medicalOfficeContext = _context.Patients
+                .Include(p => p.Doctor)
+                .Include(p => p.MedicalTrial);
             return View(await medicalOfficeContext.ToListAsync());
         }
 
@@ -36,6 +38,7 @@ namespace MedicalOffice.Controllers
 
             var patient = await _context.Patients
                 .Include(p => p.Doctor)
+                .Include(p => p.MedicalTrial)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (patient == null)
             {
@@ -49,6 +52,7 @@ namespace MedicalOffice.Controllers
         public IActionResult Create()
         {
             ViewData["DoctorID"] = new SelectList(_context.Doctors, "ID", "FirstName");
+            ViewData["MedicalTrialID"] = new SelectList(_context.MedicalTrials, "ID", "TrialName");
             return View();
         }
 
@@ -65,7 +69,7 @@ namespace MedicalOffice.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DoctorID"] = new SelectList(_context.Doctors, "ID", "FirstName", patient.DoctorID);
+            PopulateDropDownLists(patient);
             return View(patient);
         }
 
@@ -82,7 +86,7 @@ namespace MedicalOffice.Controllers
             {
                 return NotFound();
             }
-            ViewData["DoctorID"] = new SelectList(_context.Doctors, "ID", "FirstName", patient.DoctorID);
+            PopulateDropDownLists(patient);
             return View(patient);
         }
 
@@ -118,7 +122,7 @@ namespace MedicalOffice.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DoctorID"] = new SelectList(_context.Doctors, "ID", "FirstName", patient.DoctorID);
+            PopulateDropDownLists(patient);
             return View(patient);
         }
 
@@ -132,6 +136,7 @@ namespace MedicalOffice.Controllers
 
             var patient = await _context.Patients
                 .Include(p => p.Doctor)
+                .Include(p => p.MedicalTrial)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (patient == null)
             {
@@ -154,6 +159,31 @@ namespace MedicalOffice.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        //This is a twist on the PopulateDropDownLists approach
+        //  Create methods that return each SelectList separately
+        //  and one method to put them all into ViewData.
+        //This approach allows for AJAX requests to refresh
+        //DDL Data at a later date.
+        private SelectList DoctorSelectList(int? selectedId)
+        {
+            return new SelectList(_context.Doctors
+                .OrderBy(d => d.LastName)
+                .ThenBy(d => d.FirstName), "ID", "FormalName", selectedId);
+        }
+
+        private SelectList MedicalTrialList(int? selectedId)
+        {
+            return new SelectList(_context
+                .MedicalTrials
+                .OrderBy(m => m.TrialName), "ID", "TrialName", selectedId);
+        }
+
+        private void PopulateDropDownLists(Patient patient = null)
+        {
+            ViewData["DoctorID"] = DoctorSelectList(patient?.DoctorID);
+            ViewData["MedicalTrialID"] = MedicalTrialList(patient?.MedicalTrialID);
         }
 
         private bool PatientExists(int id)

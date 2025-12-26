@@ -83,6 +83,21 @@ namespace MedicalOffice.Models
         public int DoctorID { get; set; }
 
         public Doctor Doctor { get; set; }
+
+        [Display(Name = "Medical Trial")]
+        public int? MedicalTrialID { get; set; }
+
+        [Display(Name = "Medical Trial")]
+        public MedicalTrial MedicalTrial { get; set; }
+
+        public string InMedicalTrial
+        {
+            get
+            {
+                return MedicalTrialID.HasValue ? "Yes" : "No";
+            }
+        }
+
     }
 
 
