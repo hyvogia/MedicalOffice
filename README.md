@@ -1,2 +1,3 @@
 # MedicalOffice
-.NET 10 MVC Monolith Web App
+
+ASP.NET Core Patient Management System
