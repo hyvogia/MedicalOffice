@@ -19,11 +19,11 @@ namespace MedicalOffice.Data.MOMigrations
                 schema: "MO",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    MiddleName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    FirstName = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    MiddleName = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    LastName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -35,9 +35,9 @@ namespace MedicalOffice.Data.MOMigrations
                 schema: "MO",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TrialName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    TrialName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -49,18 +49,18 @@ namespace MedicalOffice.Data.MOMigrations
                 schema: "MO",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OHIP = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    MiddleName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    DOB = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ExpYrVisits = table.Column<byte>(type: "tinyint", nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    EMail = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    DoctorID = table.Column<int>(type: "int", nullable: false),
-                    MedicalTrialID = table.Column<int>(type: "int", nullable: true)
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    OHIP = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
+                    FirstName = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    MiddleName = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    LastName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    DOB = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    ExpYrVisits = table.Column<byte>(type: "INTEGER", nullable: false),
+                    Phone = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
+                    EMail = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    DoctorID = table.Column<int>(type: "INTEGER", nullable: false),
+                    MedicalTrialID = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
