@@ -1,18 +1,40 @@
 ﻿@model MedicalOffice.Models.Patient
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Patient";
 }
 
-<h1>Edit</h1>
+<h2>Edit Patient</h2>
 
-<h4>Patient</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ID" />
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="ID" />
+    <input type="hidden" asp-for="RowVersion" />
+    <div class="row">
+        <div class="col-md-8 ml-3">
+            @{
+                if (Model.PatientPhoto?.Content != null)
+                {
+                    string imageBase64 = Convert.ToBase64String(Model.PatientPhoto.Content);
+                    string imageSrc = string.Format("data:" + Model.PatientPhoto.MimeType + ";base64,{0}", imageBase64);
+                    <div class="row">
+                        <img src="@imageSrc" alt="Profile Picture of @Model.FullName" title="Profile Picture of @Model.FullName" class="img-fluid rounded" /><br />
+                    </div>
+                    <div class="row">
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input" id="chkRemoveImage" name="chkRemoveImage" /> <strong>Check to remove Image</strong>
+                            </label>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+
             <div class="form-group">
                 <label asp-for="OHIP" class="control-label"></label>
                 <input asp-for="OHIP" class="form-control" />
@@ -43,10 +65,21 @@
                 <input asp-for="ExpYrVisits" class="form-control" />
                 <span asp-validation-for="ExpYrVisits" class="text-danger"></span>
             </div>
+            <div class="form-group custom-file mt-3 mb-4">
+                <label class="control-label custom-file-label">Picture File:</label>
+                <input type="file" class="custom-file-input" name="thePicture" /><br />
+            </div>
+        </div>
+        <div class="col-md-6">
             <div class="form-group">
                 <label asp-for="Phone" class="control-label"></label>
                 <input asp-for="Phone" class="form-control" />
                 <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EMail" class="control-label"></label>
+                <input asp-for="EMail" class="form-control" />
+                <span asp-validation-for="EMail" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="MedicalTrialID" class="control-label"></label>
@@ -55,26 +88,59 @@
                 </select>
             </div>
             <div class="form-group">
-                <label asp-for="EMail" class="control-label"></label>
-                <input asp-for="EMail" class="form-control" />
-                <span asp-validation-for="EMail" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="DoctorID" class="control-label"></label>
                 <select asp-for="DoctorID" class="form-control" asp-items="ViewBag.DoctorID"></select>
                 <span asp-validation-for="DoctorID" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <label class="control-label">@Html.DisplayNameFor(model => model.PatientConditions)</label>
+                <div class="col-md-offset-1">
+                    <table>
+                        <tr>
+                            @{
+                                int cnt = 0;
+                                List<MedicalOffice.ViewModels.CheckOptionVM> checkboxes = ViewBag.ConditionOptions;
+                                foreach (var checkbox in checkboxes)
+                                {
+                                    if (cnt++ % 3 == 0)
+                                    {
+                                    @:</tr><tr>
+                                    }
+                                    @:<td>
+                                        <input type="checkbox"
+                                               name="selectedOptions"
+                                               value="@checkbox.ID"
+                                               @(Html.Raw(checkbox.Assigned ? "checked=\"checked\"" : "")) />
+                                        @checkbox.DisplayText @:&nbsp;&nbsp;
+                                    @:</td>
+                                }
+                            @:</tr>
+                            }
+                        </table>
+                    </div>
+                </div>
             </div>
-        </form>
-    </div>
-</div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    </form>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a href='@ViewData["returnURL"]'>Back to Patient List</a>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script type="text/javascript">
+            // Add the following code if you want the name of the file appear on select
+            $(".custom-file-input").on("change", function () {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+            });
+    </script>
 }

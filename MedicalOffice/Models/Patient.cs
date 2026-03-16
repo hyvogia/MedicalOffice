@@ -1,10 +1,74 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MedicalOffice.Models
 {
-    public class Patient
+    public class Patient : Auditable, IValidatableObject
     {
+        public Patient()
+        {
+            this.PatientConditions = new HashSet<PatientCondition>();
+            this.Appointments = new HashSet<Appointment>();
+        }
+
         public int ID { get; set; }
+
+        [Display(Name = "Patient")]
+        public string FullName
+        {
+            get
+            {
+                return FirstName
+                    + (string.IsNullOrEmpty(MiddleName) ? " " :
+                        (" " + (char?)MiddleName[0] + ". ").ToUpper())
+                    + LastName;
+            }
+        }
+
+        public string Age
+        {
+            get
+            {
+                DateTime today = DateTime.Today;
+                int? a = today.Year - DOB?.Year
+                    - ((today.Month < DOB?.Month || (today.Month == DOB?.Month && today.Day < DOB?.Day) ? 1 : 0));
+                return a?.ToString(); /*Note: You could add .PadLeft(3) but spaces disappear in a web page. */
+            }
+        }
+
+        [Display(Name = "Age (DOB)")]
+        public string AgeSummary
+        {
+            get
+            {
+                string ageSummary = "Unknown";
+                if (DOB.HasValue)
+                {
+                    ageSummary = Age + " (" + String.Format("{0:yyyy-MM-dd}", DOB) + ")";
+                }
+                return ageSummary;
+            }
+        }
+
+        [Display(Name = "Phone")]
+        public string PhoneFormatted
+        {
+            get
+            {
+                return "(" + Phone.Substring(0, 3) + ") " + Phone.Substring(3, 3) + "-" + Phone[6..];
+            }
+        }
+
+        public string InMedicalTrial
+        {
+            get
+            {
+                return MedicalTrialID.HasValue ? "Yes" : "No";
+            }
+        }
 
         [Required(ErrorMessage = "You cannot leave the OHIP number blank.")]
         [RegularExpression("^\\d{10}$", ErrorMessage = "The OHIP number must be exactly 10 numeric digits.")]
@@ -45,38 +109,9 @@ namespace MedicalOffice.Models
         [DataType(DataType.EmailAddress)]
         public string EMail { get; set; }
 
-        [Display(Name = "Patient")]
-        public string FullName
-        {
-            get
-            {
-                return FirstName
-                    + (string.IsNullOrEmpty(MiddleName) ? " " :
-                        (" " + (char?)MiddleName[0] + ". ").ToUpper())
-                    + LastName;
-            }
-        }
-
-        public string Age
-        {
-            get
-            {
-                DateTime today = DateTime.Today;
-                int? a = today.Year - DOB?.Year
-                    - ((today.Month < DOB?.Month || (today.Month == DOB?.Month && today.Day < DOB?.Day) ? 1 : 0));
-                return a?.ToString(); /*Note: You could add .PadLeft(3) but spaces disappear in a web page. */
-            }
-        }
-
-        [Display(Name = "Phone")]
-        public string PhoneFormatted
-        {
-            get
-            {
-                return "(" + Phone.Substring(0, 3) + ") " + Phone.Substring(3, 3) + "-" + Phone[6..];
-            }
-        }
-
+        [ScaffoldColumn(false)]
+        [Timestamp]
+        public Byte[] RowVersion { get; set; }//Added for concurrency
 
         [Required(ErrorMessage = "You must select a Primary Care Physician.")]
         [Display(Name = "Doctor")]
@@ -90,15 +125,25 @@ namespace MedicalOffice.Models
         [Display(Name = "Medical Trial")]
         public MedicalTrial MedicalTrial { get; set; }
 
-        public string InMedicalTrial
+        public PatientPhoto PatientPhoto { get; set; }
+        public PatientThumbnail PatientThumbnail { get; set; }
+
+        [Display(Name = "History")]
+        public ICollection<PatientCondition> PatientConditions { get; set; }
+
+        public ICollection<Appointment> Appointments { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            get
+            //Create a string array containing the one element-the field where our error message should show up.
+            //then you pass this to the ValidaitonResult This is only so the mesasge displays beside the field
+            //instead of just in the validaiton summary.
+            //var field = new[] { "DOB" };
+
+            if (DOB.GetValueOrDefault() > DateTime.Today)
             {
-                return MedicalTrialID.HasValue ? "Yes" : "No";
+                yield return new ValidationResult("Date of Birth cannot be in the future.", new[] { "DOB" });
             }
         }
-
     }
-
-
 }
